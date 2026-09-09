@@ -1,13 +1,13 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL,
 });
 
 export const uploadAudio = async (audio, metadata = {}) => {
   const formData = new FormData();
-
-  // Keep original filename if it's a File,
   // otherwise use a default name for recorded audio.
   if (audio instanceof File) {
     formData.append("audio", audio);

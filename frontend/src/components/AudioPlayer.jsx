@@ -83,7 +83,21 @@ export default function AudioPlayer({ src, onTimeUpdate, externalSeekTime, class
         src={src}
         preload="metadata"
         onLoadedMetadata={() => {
-          if (audioRef.current) setDuration(audioRef.current.duration || 0);
+          if (audioRef.current) {
+            if (audioRef.current.duration === Infinity) {
+              // Force Chrome to calculate WebM duration
+              const prevTime = audioRef.current.currentTime;
+              audioRef.current.currentTime = 1e8;
+              const handleTimeUpdate = () => {
+                audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
+                audioRef.current.currentTime = prevTime;
+                setDuration(audioRef.current.duration);
+              };
+              audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
+            } else {
+              setDuration(audioRef.current.duration || 0);
+            }
+          }
         }}
         onTimeUpdate={() => {
           if (audioRef.current) {
